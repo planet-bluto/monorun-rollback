@@ -241,8 +241,9 @@ func _alt_movement_process(input):
 ### NETWORKING ###
 
 func _network_process(input):
-	_collision_check()
-	_alt_movement_process(input)
+	if (!input.empty()):
+		_collision_check()
+		_alt_movement_process(input)
 #	_movement_process(input)
 
 func _save_state():

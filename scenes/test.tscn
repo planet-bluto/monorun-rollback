@@ -74,7 +74,7 @@ margin_top = 18.0
 margin_right = 281.0
 margin_bottom = 42.0
 size_flags_horizontal = 3
-text = "127.0.0.1"
+text = "192.168.1.119"
 
 [node name="PortLabel" type="Label" parent="HUD/NetworkPanel/Grid"]
 margin_top = 46.0
@@ -88,7 +88,7 @@ margin_top = 64.0
 margin_right = 281.0
 margin_bottom = 88.0
 size_flags_horizontal = 3
-text = "9999"
+text = "6666"
 
 [node name="HostButton" type="Button" parent="HUD/NetworkPanel/Grid"]
 margin_top = 92.0

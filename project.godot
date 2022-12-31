@@ -166,8 +166,7 @@ S2={
 [network]
 
 rollback/input_delay=4
-rollback/debug/rollback_ticks=15
-rollback/debug/random_rollback_ticks=8
+rollback/classes/message_serializer="res://scripts/MonoMessageSerializer.gd"
 
 [physics]
 
