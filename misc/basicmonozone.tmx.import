@@ -1,0 +1,22 @@
+[remap]
+
+importer="vnen.tiled_importer"
+type="PackedScene"
+path="res://.import/basicmonozone.tmx-c231e7641ba9fc44e38b5cf9f3f2e1f0.scn"
+
+[deps]
+
+source_file="res://misc/basicmonozone.tmx"
+dest_files=[ "res://.import/basicmonozone.tmx-c231e7641ba9fc44e38b5cf9f3f2e1f0.scn" ]
+
+[params]
+
+custom_properties=true
+tile_metadata=false
+uv_clip=true
+image_flags=0
+collision_layer=1
+embed_internal_images=false
+save_tiled_properties=false
+add_background=false
+post_import_script=""

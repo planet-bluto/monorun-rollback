@@ -1,0 +1,21 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type canvas_item;
+
+vec4 rgbColor (float r,float g,float b) {
+	return vec4((r/255.0),(g/255.0),(b/255.0), 1);
+}
+
+uniform vec4 PLAYER_COLOR;
+uniform vec4 MOOD_COLOR;
+
+void fragment(){
+	COLOR = texture(TEXTURE, UV)*MODULATE;
+	if (texture(TEXTURE, UV) == rgbColor(224, 60, 40)) { // ACCENT
+		COLOR = PLAYER_COLOR*MODULATE;
+	}
+	if (texture(TEXTURE, UV) == rgbColor(0, 0, 0)) { // BLACK
+		COLOR = MOOD_COLOR*MODULATE;
+	}
+}"

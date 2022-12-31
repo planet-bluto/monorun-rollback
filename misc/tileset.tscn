@@ -1,0 +1,171 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://sprites/tileset.png" type="Texture" id=1]
+
+[sub_resource type="SGRectangleShape2D" id=1]
+extents_x = 2621440
+extents_y = 2621440
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Tile1" type="Sprite" parent="."]
+position = Vector2( 40, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile1"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile1/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile2" type="Sprite" parent="."]
+position = Vector2( 125, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 1
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile2"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile2/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile3" type="Sprite" parent="."]
+position = Vector2( 210, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 2
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile3"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile3/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile4" type="Sprite" parent="."]
+position = Vector2( 295, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 3
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile4"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile4/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile5" type="Sprite" parent="."]
+position = Vector2( 380, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 4
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile5"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile5/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile6" type="Sprite" parent="."]
+position = Vector2( 40, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 5
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile6"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile6/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile7" type="Sprite" parent="."]
+position = Vector2( 125, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 6
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile7"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile7/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile8" type="Sprite" parent="."]
+position = Vector2( 210, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 7
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile8"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile8/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile9" type="Sprite" parent="."]
+position = Vector2( 295, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 8
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile9"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile9/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile10" type="Sprite" parent="."]
+position = Vector2( 380, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 9
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile10"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile10/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile11" type="Sprite" parent="."]
+position = Vector2( 40, 210 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 10
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile11"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile11/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile12" type="Sprite" parent="."]
+position = Vector2( 125, 210 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 11
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile12"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile12/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile13" type="Sprite" parent="."]
+position = Vector2( 210, 210 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 12
+
+[node name="StaticBody2D" type="SGStaticBody2D" parent="Tile13"]
+
+[node name="CollisionShape2D" type="SGCollisionShape2D" parent="Tile13/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Tile14" type="Sprite" parent="."]
+position = Vector2( 295, 210 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 13

@@ -1,0 +1,131 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Objects/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scripts/test.gd" type="Script" id=2]
+[ext_resource path="res://misc/basicmonozone.tmx" type="PackedScene" id=3]
+
+[sub_resource type="SGRectangleShape2D" id=1]
+extents_x = 83886080
+extents_y = 1638400
+
+[node name="Test" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="HUD" type="CanvasLayer" parent="."]
+scale = Vector2( 0.24, 0.24 )
+transform = Transform2D( 0.24, 0, 0, 0.24, 0, 0 )
+
+[node name="ThisMot" type="Label" parent="HUD"]
+margin_top = 312.5
+margin_right = 52.0
+margin_bottom = 326.5
+rect_scale = Vector2( 5, 5 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_as_outline = 20
+text = "Motion"
+
+[node name="ServerPos" type="Label" parent="HUD"]
+margin_top = 445.833
+margin_right = 52.0
+margin_bottom = 459.833
+rect_scale = Vector2( 5, 5 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_as_outline = 20
+text = "Position"
+
+[node name="ClientPos" type="Label" parent="HUD"]
+margin_top = 512.5
+margin_right = 52.0
+margin_bottom = 526.5
+rect_scale = Vector2( 5, 5 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_as_outline = 20
+text = "Position"
+
+[node name="NetworkLabel" type="Label" parent="HUD"]
+margin_left = 20.0
+margin_top = 5.0
+margin_right = 72.0
+margin_bottom = 19.0
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_as_outline = 20
+text = "kys network panel"
+
+[node name="NetworkPanel" type="PanelContainer" parent="HUD"]
+margin_left = 20.0
+margin_top = 20.0
+margin_right = 315.0
+margin_bottom = 180.0
+
+[node name="Grid" type="GridContainer" parent="HUD/NetworkPanel"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 288.0
+margin_bottom = 153.0
+
+[node name="HostLabel" type="Label" parent="HUD/NetworkPanel/Grid"]
+margin_right = 281.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Host:"
+
+[node name="HostField" type="LineEdit" parent="HUD/NetworkPanel/Grid"]
+margin_top = 18.0
+margin_right = 281.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+text = "127.0.0.1"
+
+[node name="PortLabel" type="Label" parent="HUD/NetworkPanel/Grid"]
+margin_top = 46.0
+margin_right = 281.0
+margin_bottom = 60.0
+size_flags_horizontal = 3
+text = "Port:"
+
+[node name="PortField" type="LineEdit" parent="HUD/NetworkPanel/Grid"]
+margin_top = 64.0
+margin_right = 281.0
+margin_bottom = 88.0
+size_flags_horizontal = 3
+text = "9999"
+
+[node name="HostButton" type="Button" parent="HUD/NetworkPanel/Grid"]
+margin_top = 92.0
+margin_right = 281.0
+margin_bottom = 112.0
+size_flags_horizontal = 3
+text = "Host"
+
+[node name="ClientButton" type="Button" parent="HUD/NetworkPanel/Grid"]
+margin_top = 116.0
+margin_right = 281.0
+margin_bottom = 136.0
+size_flags_horizontal = 3
+text = "Client"
+
+[node name="ServerPlayer" parent="." instance=ExtResource( 1 )]
+position = Vector2( 2475, 455 )
+fixed_position_x = 162201600
+fixed_position_y = 29818880
+
+[node name="ClientPlayer" parent="." instance=ExtResource( 1 )]
+position = Vector2( 2695, 455 )
+fixed_position_x = 176619520
+fixed_position_y = 29818880
+
+[node name="MAP" parent="." instance=ExtResource( 3 )]
+
+[node name="SGStaticBody2D" type="SGStaticBody2D" parent="."]
+visible = false
+position = Vector2( 2560, 505 )
+fixed_position_x = 167772160
+fixed_position_y = 33095680
+
+[node name="SGCollisionShape2D" type="SGCollisionShape2D" parent="SGStaticBody2D"]
+shape = SubResource( 1 )
+
+[connection signal="pressed" from="HUD/NetworkPanel/Grid/HostButton" to="." method="_on_HostButton_pressed"]
+[connection signal="pressed" from="HUD/NetworkPanel/Grid/ClientButton" to="." method="_on_ClientButton_pressed"]
+
+[editable path="MAP"]

@@ -1,0 +1,102 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://sprites/tileset.png" type="Texture" id=1]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Tile1" type="Sprite" parent="."]
+position = Vector2( 40, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+
+[node name="Tile2" type="Sprite" parent="."]
+position = Vector2( 125, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 1
+
+[node name="Tile3" type="Sprite" parent="."]
+position = Vector2( 210, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 2
+
+[node name="Tile4" type="Sprite" parent="."]
+position = Vector2( 295, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 3
+
+[node name="Tile5" type="Sprite" parent="."]
+position = Vector2( 380, 40 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 4
+
+[node name="Tile6" type="Sprite" parent="."]
+position = Vector2( 40, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 5
+
+[node name="Tile7" type="Sprite" parent="."]
+position = Vector2( 125, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 6
+
+[node name="Tile8" type="Sprite" parent="."]
+position = Vector2( 210, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 7
+
+[node name="Tile9" type="Sprite" parent="."]
+position = Vector2( 295, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 8
+
+[node name="Tile10" type="Sprite" parent="."]
+position = Vector2( 380, 125 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 9
+
+[node name="Tile11" type="Sprite" parent="."]
+position = Vector2( 40, 210 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 10
+
+[node name="Tile12" type="Sprite" parent="."]
+position = Vector2( 125, 210 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 11
+
+[node name="Tile13" type="Sprite" parent="."]
+position = Vector2( 210, 210 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 12
+
+[node name="Tile14" type="Sprite" parent="."]
+position = Vector2( 295, 210 )
+texture = ExtResource( 1 )
+hframes = 5
+vframes = 3
+frame = 13

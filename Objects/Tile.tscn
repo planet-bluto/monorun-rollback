@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="SGRectangleShape2D" id=1]
+extents_x = 2621440
+extents_y = 2621440
+
+[node name="Tile" type="SGStaticBody2D" groups=["Looping"]]
+
+[node name="Shape" type="SGCollisionShape2D" parent="."]
+position = Vector2( 40, 40 )
+fixed_position_x = 2621440
+fixed_position_y = 2621440
+shape = SubResource( 1 )
