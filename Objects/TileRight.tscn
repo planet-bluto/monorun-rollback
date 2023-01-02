@@ -1,18 +1,22 @@
 [gd_scene load_steps=2 format=2]
 
 [sub_resource type="SGRectangleShape2D" id=1]
-extents_x = 2621440
+extents_x = 0
 extents_y = 2621440
 
 [node name="Tile" type="SGStaticBody2D" groups=["Looping"]]
+collision_layer = 2
 
 [node name="Shape" type="SGCollisionShape2D" parent="."]
-position = Vector2( 40, 40 )
-fixed_position_x = 2621440
+position = Vector2( 80, 40 )
+fixed_position_x = 5242880
 fixed_position_y = 2621440
 shape = SubResource( 1 )
 
-[node name="Debug" type="ColorRect" parent="."]
+[node name="SGRayCast2D" type="SGRayCast2D" parent="."]
 visible = false
-margin_right = 80.0
-margin_bottom = 80.0
+position = Vector2( 80, 40 )
+fixed_position_x = 5242880
+fixed_position_y = 2621440
+cast_to_x = 3276800
+cast_to_y = 0

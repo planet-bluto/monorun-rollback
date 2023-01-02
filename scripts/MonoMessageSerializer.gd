@@ -47,8 +47,8 @@ func serialize_input(all_input: Dictionary) -> PoolByteArray:
 		if input.ff: header |= HeaderFlags.FASTFALL
 		
 		buffer.put_u8(header)
-		
 		buffer.put_u8(DirectionBit[input.joy_dir])
+		buffer.put_u16((input.angle+360)*2)
 	
 	buffer.resize(buffer.get_position())
 	return buffer.data_array
@@ -74,8 +74,10 @@ func unserialize_input(serialized: PoolByteArray) -> Dictionary:
 	input.ff = (header & HeaderFlags.FASTFALL)
 	
 	var joy_dir = buffer.get_u8()
-	
 	input.joy_dir = BitDirection[joy_dir]
+	
+	var ang = buffer.get_u16()
+	input.angle = (ang/2)-360
 	
 	all_input[path] = input
 	

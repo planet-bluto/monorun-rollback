@@ -1,7 +1,6 @@
 extends SGKinematicBody2D
 
-const local = false
-var form_string = "(kill me)"
+var form_string = "lmao"
 
 # Input Vars #
 const INPUT_KEYS = [ #Keys for referring to input; REMEMBER THE ORDER
@@ -18,7 +17,7 @@ var input_timer = {}
 
 ## Defaul Godot Physics Movement Vars ##
 ## (These are the base variables before being converted MANUALLY in speed crunch to be a set fixed constant)
-## rescale = 50.0 (as of 12/30/2022)
+## rescale = 62.0 (as of 12/31/2022)
 ## fixedMovar = floor((movar/rescale)*65536)
 #	"SPEED": 700,
 #	"ACCEL": 90,
@@ -26,7 +25,8 @@ var input_timer = {}
 #	"GRAV": 40,
 #	"FASTGRAV": 50,
 #	"MAXFALL": 1200,
-#	"JUMP": 1300
+#	"JUMP": 1300,
+#	"JUMP": sqrt(SPEED^2+JUMP^2),
 #	"FRICTION": 1.2,
 #	"DASH_FRICTION": 1.04,
 #	"AIR_FRICTION": 1.009,
@@ -36,51 +36,135 @@ var input_timer = {}
 ## fixedMovar = floor(movar*65536)
 #	"FRICTION",
 #	"DASH_FRICTION",
-#	"AIR_FRICTION"
+#	"AIR_FRICTION",
+
+const fixed = {
+	SPEED = 739922,
+	ACCEL = 95132,
+	DASHSPEED = 1268438,
+	GRAV = 42281,
+	FASTGRAV = 52851,
+	MAXFALL = 1268438,
+	JUMP = 1374141,
+	MAXVELO = 1560689,
+	FRICTION = 78643,
+	DASH_FRICTION = 68157,
+	AIR_FRICTION = 66125,
+}
 
 const ZEROENOUGH = 6553
 
-const fixed = {
-	SPEED = 458752,
-	ACCEL = 58982,
-	DASHSPEED = 786432,
-	GRAV = 26214,
-	FASTGRAV = 32768,
-	MAXFALL = 786432,
-	JUMP = 851968,
-	FRICTION = 78643,
-#	FRICTION = 157286,
-	DASH_FRICTION = 68157,
-#	DASH_FRICTION = 136314,
-	AIR_FRICTION = 66125,
-#	AIR_FRICTION = 132251,
-}
+# Scale testing (don't mind me)
+#var rescale = 62.0
+#var fixed = {
+#	"SPEED": SGFixed.from_float(float(700)/rescale),
+#	"ACCEL": SGFixed.from_float(float(90)/rescale),
+#	"DASHSPEED": SGFixed.from_float(float(1200)/rescale),
+#	"GRAV": SGFixed.from_float(float(40)/rescale),
+#	"FASTGRAV": SGFixed.from_float(float(50)/rescale),
+#	"MAXFALL": SGFixed.from_float(float(1200)/rescale),
+#	"JUMP": SGFixed.from_float(float(1300)/rescale),
+#	"FRICTION": 78643,
+#	"DASH_FRICTION": 68157,
+#	"AIR_FRICTION": 66125,
+#}
 
 var UP = SGFixed.vector2(0, SGFixed.from_int(-1))
-var state_vars = {
-	"motion": SGFixed.vector2(0, 0),
-	"last_dir": 1,
-	"grounded": false,
-	"ground_timer": 0,
-	"dashing": false
+var motion = SGFixed.vector2(0, 0)
+var last_dir = 1
+var grounded = false
+var ground_timer = 0
+var dashing = false
+var walled_r = false
+var walled_l = false
+var last_fixed_position = {"x": fixed_position_x, "y": fixed_position_y}
+var curr_anim = "Idle"
+var last_curr_anim = ""
+var aim_angle = 0
+
+var casts = {
+	"ceil": [],
+	"floor": [],
+	"right": [],
+	"left": [],
+	"tl": SGRayCast2D.new(),
+	"tr": SGRayCast2D.new(),
+	"bl": SGRayCast2D.new(),
+	"br": SGRayCast2D.new(),
 }
-#var motion = SGFixed.vector2(0, 0)
-#var last_dir = 1
-#var grounded = true
-#var ground_timer = 0
-#var dashing = false
 
 func _ready():
-	pass
-#	for movar in unfixed:
-#		if (unscaled_movars.has(movar)):
-#			fixed[movar] = SGFixed.from_float(unfixed[movar])
-#		else:
-#			fixed[movar] = SGFixed.div(SGFixed.from_float(float(unfixed[movar])), SGFixed.from_float(rescale))
+	for y in 2:
+		var right_cast = SGRayCast2D.new()
+		var left_cast = SGRayCast2D.new()
+		casts.right.append(right_cast)
+		casts.left.append(left_cast)
+		var y_pos = SGFixed.from_int(-40*y)
+		right_cast.cast_to_x = fixed.SPEED+SGFixed.from_int(15)
+		right_cast.cast_to_y = 0
+		left_cast.cast_to_x = -fixed.SPEED-SGFixed.from_int(15)
+		left_cast.cast_to_y = 0
+		right_cast.fixed_position_x = 0
+		right_cast.fixed_position_y = y_pos
+		left_cast.fixed_position_x = 0
+		left_cast.fixed_position_y = y_pos
+		right_cast.set_collision_mask_bit(0, false)
+		right_cast.set_collision_mask_bit(3, true)
+		right_cast.set_collision_mask_bit(2, true)
+		left_cast.set_collision_mask_bit(0, false)
+		left_cast.set_collision_mask_bit(3, true)
+		left_cast.set_collision_mask_bit(2, true)
+		add_child(right_cast)
+		add_child(left_cast)
+	for x in 2:
+		var ceil_cast = SGRayCast2D.new()
+		var floor_cast = SGRayCast2D.new()
+		casts.ceil.append(ceil_cast)
+		casts.floor.append(floor_cast)
+		var x_pos = SGFixed.from_int((30*x)-15)
+#		ceil_cast.cast_to_x = x_pos
+		ceil_cast.cast_to_y = -fixed.JUMP-SGFixed.from_int(20)
+#		floor_cast.cast_to_x = x_pos
+		floor_cast.cast_to_y = fixed.MAXFALL+SGFixed.from_int(20)
+		ceil_cast.fixed_position_x = x_pos
+		floor_cast.fixed_position_x = x_pos
+		floor_cast.fixed_position_y = -SGFixed.from_int(20)
+		ceil_cast.fixed_position_y = -SGFixed.from_int(20)
+		ceil_cast.set_collision_mask_bit(0, false)
+		ceil_cast.set_collision_mask_bit(4, true)
+		floor_cast.set_collision_mask_bit(0, false)
+		floor_cast.set_collision_mask_bit(1, true)
+		add_child(ceil_cast)
+		add_child(floor_cast)
+	
+#	var corner_order = [
+#		{"x": -1, "y": -1},
+#		{"x": 1, "y": -1},
+#		{"x": -1, "y": 1},
+#		{"x": 1, "y": 1},
+#	]
+#	var corner_casts = ["tl","tr", "bl", "br"]
+#	var c_ind = 0
+#	for corner in corner_casts:
+#		casts[corner].fixed_position_x = SGFixed.from_int(15*corner_order[c_ind].x)
+#		casts[corner].fixed_position_y = SGFixed.from_int((20*corner_order[c_ind].y)-20)
+#		casts[corner].cast_to_x = fixed.MAXVELO*corner_order[c_ind].x
+#		casts[corner].cast_to_y = fixed.MAXVELO*corner_order[c_ind].y
+#
+#		casts[corner].set_collision_mask_bit(0, false)
+#		casts[corner].set_collision_mask_bit(1, true)
+#		casts[corner].set_collision_mask_bit(2, true)
+#		casts[corner].set_collision_mask_bit(3, true)
+#		casts[corner].set_collision_mask_bit(4, true)
+#		add_child(casts[corner])
+#		c_ind += 1
 	
 	# input_timer setup
 	for key in INPUT_KEYS:
 		input_timer[key] = 0
+
+func roundToHalf(x):
+	return round(x*2)/2
 
 func _get_local_input():
 	var input = {
@@ -105,145 +189,287 @@ func _get_local_input():
 	if (Input.is_action_pressed("D")):
 		input.ff = true
 	
+	var mouse_screen_pos = get_global_mouse_position()
+	var screen_pos = get_transform().get_origin() - Vector2(0,-20)
+	
+	input.angle = roundToHalf(rad2deg(atan2(mouse_screen_pos.y-screen_pos.y, mouse_screen_pos.x-screen_pos.x)))
+	aim_angle = input.angle
+	
 	return input
 
 func _process(delta):
-	pass
-
-func _physics_process(delta):
 	# input_timer processing
 	for key in INPUT_KEYS:
 		if (Input.is_action_pressed(key)):
 			input_timer[key] += 1
 		else:
 			input_timer[key] = 0
-	
-	if (local):
-		_movement_process(_get_local_input())
 
-func _input_process():
-	pass
-
-func _movement_process(input):
+func _old_movement_process(input):
 	# Saves whether you last pressed Left or Right inputs
 	if (input.joy_dir != 0): 
-		state_vars.last_dir = input.joy_dir
+		last_dir = input.joy_dir
 	
 	if (input.joy_dir != 0): # ( if moving left or right )
 		# Horizontal movement
-		state_vars.motion.x += fixed.ACCEL*input.joy_dir
+		motion.x += fixed.ACCEL*input.joy_dir
 	else:
 		# What friction to use (ground? dash? air?)
 		var curr_fric = fixed.FRICTION
-		if (state_vars.dashing): 
+		if (dashing): 
 			curr_fric = fixed.DASH_FRICTION
-		if (!state_vars.grounded):
+		if (!grounded):
 			curr_fric = fixed.AIR_FRICTION
 	
 		# Friction (gradual slowdowns)
-		if (abs(state_vars.motion.x) > ZEROENOUGH):
-			state_vars.motion.x = SGFixed.div(state_vars.motion.x, curr_fric)
+		if (abs(motion.x) > ZEROENOUGH):
+			motion.x = SGFixed.div(motion.x, curr_fric)
 		else:
-			state_vars.motion.x = 0
+			motion.x = 0
 #		motion.x = 0
 	
 	if (is_on_floor()):
-		state_vars.grounded = true
-		state_vars.ground_timer += 1
-		if (state_vars.ground_timer == 1): state_vars.motion.y = 0
+		grounded = true
+		ground_timer += 1
+		if (ground_timer == 1): motion.y = 0
 	if (!is_on_floor()):
-		state_vars.grounded = false
-		state_vars.ground_timer = 0
+		grounded = false
+		ground_timer = 0
 	
 		# Gravity and fast falling on down input
 		var curr_ff = 0
 		if (input.ff): curr_ff = fixed.FASTGRAV
-		state_vars.motion.y += (fixed.GRAV+curr_ff)
-		if (state_vars.motion.y > fixed.MAXFALL):
-			state_vars.motion.y = fixed.MAXFALL
+		motion.y += (fixed.GRAV+curr_ff)
+		if (motion.y > fixed.MAXFALL):
+			motion.y = fixed.MAXFALL
 	
 	# Jump if jump input is true
 	if (input.jump):
-		state_vars.motion.y = -fixed.JUMP
+		motion.y = -fixed.JUMP
 	
 	# Dash if dash input is true
 	if (input.dash):
-		state_vars.motion.x = (fixed.DASHSPEED*state_vars.last_dir)
-		state_vars.dashing = true
+		motion.x = (fixed.DASHSPEED*last_dir)
+		dashing = true
 
 	# Leave dashing state
-	if (abs(state_vars.motion.x) < fixed.SPEED and state_vars.grounded):
-		state_vars.dashing = false
+	if (abs(motion.x) < fixed.SPEED and grounded):
+		dashing = false
 	
 	# Clamp yo hori speed
-	if (state_vars.dashing):
-		state_vars.motion.x = clamp(state_vars.motion.x, -fixed.DASHSPEED, fixed.DASHSPEED)
+	if (dashing):
+		motion.x = clamp(motion.x, -fixed.DASHSPEED, fixed.DASHSPEED)
 	else:
-		state_vars.motion.x = clamp(state_vars.motion.x, -fixed.SPEED, fixed.SPEED)
+		motion.x = clamp(motion.x, -fixed.SPEED, fixed.SPEED)
 	
-	move_and_slide(state_vars.motion, UP)
+		move_and_slide(motion, UP)
 #	fixed_position = SGFixed.vector2(SGFixed.round(fixed_position.x), SGFixed.round(fixed_position.y))
 
-func _collision_check():
-	$Cast.set_exceptions([self])
-	$Cast.update_raycast_collision()
-	var fixedColPoint = $Cast.get_collision_point()
-#		print(SGFixed.to_float(fixedColPoint.y))
-	# Going Down, Detecting Ground, Future Y Coord more than Ground Y Coord
-	if (state_vars.motion.y > 0 and $Cast.is_colliding() and (fixed_position_y+state_vars.motion.y >= fixedColPoint.y)):
-		state_vars.grounded = true
-		state_vars.motion.y = 0
-		fixed_position_y = fixedColPoint.y
-	elif (!$Cast.is_colliding() or fixed_position_y+state_vars.motion.y < fixedColPoint.y):
-		state_vars.grounded = false
+func _collision_check(input):
+	var previous_coll = false
+	
+	# Ground Collision (THE MOST IMPORTANT ONE)
+	var future_x_pos = fixed_position_x+motion.x
+	var future_y_pos = fixed_position_y+motion.y
+	
+	var box_w = SGFixed.from_int(15)
+	var box_h = SGFixed.from_int(40)
+	
+	## FLOOR ##
+	var floor_loop_true = 0
+	for cast in casts.floor:
+		cast.set_exceptions([self])
+		cast.update_raycast_collision()
+		var fixedColPoint = cast.get_collision_point()
+		# Going Down, Detecting Ground, Future Y Coord more than Ground Y Coord
+		if (motion.y > 0 and cast.is_colliding() and (future_y_pos >= fixedColPoint.y)):
+#			grounded = true
+			previous_coll = true
+			floor_loop_true += 1
+			motion.y = 0
+			fixed_position_y = fixedColPoint.y
+		elif ((!cast.is_colliding() or future_y_pos < fixedColPoint.y)):
+			floor_loop_true -= 1
+	grounded = !(floor_loop_true == -2)
+	
+	## CEILLING ##
+	var ceil_loop_true = 0
+	for cast in casts.ceil:
+		cast.set_exceptions([self])
+		cast.update_raycast_collision()
+		var fixedColPoint = cast.get_collision_point()
+#		print("(%s, %s, %s)" % [motion.y < 0, cast.is_colliding(), future_y_pos-40 <= fixedColPoint.y])
+		# Going Down, Detecting Ground, Future Y Coord less than Ground Y Coord
+		if (motion.y < 0 and cast.is_colliding() and (future_y_pos-box_h <= fixedColPoint.y)):
+#			grounded = true
+			previous_coll = true
+			ceil_loop_true += 1
+			motion.y = 0
+			fixed_position_y = fixedColPoint.y+box_h
+		elif ((!cast.is_colliding() or future_y_pos-box_h < fixedColPoint.y)):
+			ceil_loop_true -= 1
+#	grounded = !(floor_loop_true == -7)
+	
+	## WALL (RIGHT) ##
+	var right_loop_true = 0
+	for cast in casts.right:
+		cast.set_exceptions([self])
+		cast.update_raycast_collision()
+		var fixedColPoint = cast.get_collision_point()
+		# Going Down, Detecting Ground, Future X Coord more than Wall X Coord
+		if (motion.x > 0 and cast.is_colliding() and (future_x_pos+box_w >= fixedColPoint.x)):
+#			grounded = true
+			previous_coll = true
+			right_loop_true += 1
+			motion.x = 0
+			fixed_position_x = fixedColPoint.x-box_w
+		elif ((!cast.is_colliding() or future_x_pos+box_w > fixedColPoint.x)):
+			right_loop_true -= 1
+	walled_r = !(right_loop_true == -2)
+	
+	## WALL (Left) ##
+	var left_loop_true = 0
+	for cast in casts.left:
+		cast.set_exceptions([self])
+		cast.update_raycast_collision()
+		var fixedColPoint = cast.get_collision_point()
+		# Going Down, Detecting Ground, Future X Coord less than Wall X Coord
+		if (motion.x < 0 and cast.is_colliding() and (future_x_pos-box_w <= fixedColPoint.x)):
+#			grounded = true
+			previous_coll = true
+			left_loop_true += 1
+			if (motion.x != 0):
+				motion.x = 0
+			fixed_position_x = fixedColPoint.x+box_w
+		elif ((!cast.is_colliding() or future_x_pos-box_w < fixedColPoint.x)):
+			left_loop_true -= 1
+	walled_l = !(left_loop_true == -2)
+	
+#	if (fixed_position_x-box_w < SGFixed.from_int(2400)):
+#		pass
+	
+	## EXTRA VELOCITY CHECK ##
+#	var corner_order = [
+#		{"x": -1, "y": -1},
+#		{"x": 1, "y": -1},
+#		{"x": -1, "y": 1},
+#		{"x": 1, "y": 1},
+#	]
+#	var corner_casts = ["tl","tr", "bl", "br"]
+#	var c_ind = 0
+#	for corner in corner_casts:
+#		var cast = casts[corner]
+#		var coords = corner_order[c_ind]
+#		cast.update_raycast_collision()
+#		var corner_future_pos_x = cast.fixed_position_x+future_x_pos
+#		var corner_future_pos_y = cast.fixed_position_y+future_y_pos
+#		var fixedColPoint = cast.get_collision_point()
+#		var hori = cast.get_collision_normal().x*-1
+#		var vert = cast.get_collision_normal().y*-1
+##		print("FUTURE POS_X: %s" % abs(future_x_pos+cast.fixed_position_x))
+##		print("FUTURE POS_Y: %s" % abs(future_y_pos+cast.fixed_position_y))
+##		print("COLLIDE POS_X: %s" % abs(fixedColPoint.x))
+##		print("COLLIDE POS_Y: %s" % abs(fixedColPoint.y))
+##		var stop_x = false
+##		var stop_y = false
+##		if (corner == "tl" and 
+##			corner_future_pos_x
+##		)
+#		if (!previous_coll and cast.is_colliding() and ((corner_future_pos_x)*coords.x > fixedColPoint.x*coords.x) and ((corner_future_pos_y)*coords.y > fixedColPoint.y*coords.y)):
+#			if (corner_future_pos_x > corner_future_pos_y):
+#				motion.x = 0
+#			else:
+#				motion.y = 0
+##		if (cast.is_colliding() and vert != 0 and (corner_future_pos_y)*vert >= (fixedColPoint.y)*vert and ! (abs(corner_future_pos_x) < abs(fixedColPoint.x))):
+##			motion.y = 0
+#		c_ind += 1
 
-func _alt_movement_process(input):
+func _movement_process(input):
 	var fixed_joy_dir = SGFixed.from_int(input.joy_dir)
 	
 	# Saves whether you last pressed Left or Right inputs
 	if (input.joy_dir != 0): 
-		state_vars.last_dir = input.joy_dir
+		last_dir = input.joy_dir
 	
 	if (input.joy_dir != 0): # ( if moving left or right )
 		# Horizontal movement
-		state_vars.motion.x += fixed.ACCEL*input.joy_dir
+		motion.x += fixed.ACCEL*input.joy_dir
 	else:
 #		motion.x = 0
 		# What friction to use (ground? dash? air?)
 		var curr_fric = fixed.FRICTION
-		if (state_vars.dashing): 
+		if (dashing): 
 			curr_fric = fixed.DASH_FRICTION
-		if (!state_vars.grounded):
+		if (!grounded):
 			curr_fric = fixed.AIR_FRICTION
 	#------------------------------------------#
 		# Friction (gradual slowdowns)
-		if (abs(state_vars.motion.x) > ZEROENOUGH):
-			state_vars.motion.x = SGFixed.div(state_vars.motion.x, curr_fric)
+		if (abs(motion.x) > ZEROENOUGH):
+			motion.x = SGFixed.div(motion.x, curr_fric)
 		else:
-			state_vars.motion.x = 0
+			motion.x = 0
 	
-	if (!state_vars.grounded):
-		state_vars.motion.y += fixed.GRAV
+	if (!grounded):
+		var curr_ff = 0
+		if (input.ff): curr_ff = fixed.FASTGRAV
+		motion.y += fixed.GRAV+curr_ff
 	else:
 		if input.jump:
-			state_vars.motion.y = -fixed.JUMP
+			motion.y = -fixed.JUMP
+	
+	# Dash if dash input is true
+	if (input.dash and grounded):
+		motion.x = (fixed.DASHSPEED*last_dir)
+		dashing = true
 
-	state_vars.motion.x = clamp(state_vars.motion.x, -fixed.SPEED, fixed.SPEED)
-	state_vars.motion.y = clamp(state_vars.motion.y, -fixed.MAXFALL, fixed.MAXFALL)
+	# Leave dashing state
+	if (abs(motion.x) < fixed.SPEED and grounded):
+		dashing = false
 	
-	var form_x = SGFixed.format_string(state_vars.motion.x)
-	var form_y = SGFixed.format_string(state_vars.motion.y)
-	form_string = "(%s, %s)" % [form_x, form_y]
+	# Clamp yo motion
+	if (dashing):
+		motion.x = clamp(motion.x, -fixed.DASHSPEED, fixed.DASHSPEED)
+	else:
+		motion.x = clamp(motion.x, -fixed.SPEED, fixed.SPEED)
+	motion.y = clamp(motion.y, -INF, fixed.MAXFALL)
 	
-	fixed_position_x = (fixed_position_x + state_vars.motion.x)
-	fixed_position_y = (fixed_position_y + state_vars.motion.y)
+#	fixed_position_x = (fixed_position_x + motion.x)
+#	fixed_position_y = (fixed_position_y + motion.y)
+
+func _animate(input):
+	$Sprite.flip_h = (abs(input.angle) > 90)
+	
+	if (grounded):
+		if (input.joy_dir == 0):
+			curr_anim = "Idle"
+		else:
+			curr_anim = "Run"
+	else:
+		if (motion.y < 0):
+			curr_anim = "Jump"
+		else:
+			curr_anim = "Fall"
+	
+	if (last_curr_anim != curr_anim):
+		$Anim.play(curr_anim)
+	
+	last_curr_anim = curr_anim
+
+func _apply_motion():
+	last_fixed_position = {"x": fixed_position_x, "y": fixed_position_y}
+	fixed_position_x = (fixed_position_x + motion.x)
+	fixed_position_y = (fixed_position_y + motion.y)
 
 ### NETWORKING ###
 
 func _network_process(input):
 	if (!input.empty()):
-		_collision_check()
-		_alt_movement_process(input)
+#		_pre_collision_check(input)
+		_movement_process(input)
+		_collision_check(input)
+		_animate(input)
+		form_string = "(%s, %s)" % [walled_l, walled_r]
+		_apply_motion()
 #	_movement_process(input)
 
 func _save_state():
@@ -251,23 +477,35 @@ func _save_state():
 	
 	state['fixed_position_x'] = fixed_position_x
 	state['fixed_position_y'] = fixed_position_y
-#	for key in state_vars:
-#		state["m_"+key] = state_vars[key]
-	if state_vars.motion.x != 0: state['motion_x'] = state_vars.motion.x
-	if state_vars.motion.y != 0: state['motion_y'] = state_vars.motion.y
+	state['last_fixed_position'] = last_fixed_position
 	
-	if state_vars.grounded: state["grounded"] = true
+	state['curr_anim'] = curr_anim
+	state['last_curr_anim'] = last_curr_anim
+	
+	if motion.x != 0: state['motion_x'] = motion.x
+	if motion.y != 0: state['motion_y'] = motion.y
+	
+	if grounded: state["grounded"] = true
+	if dashing: state["dashing"] = true
+	
+#	state["aim_angle"] = aim_angle
 
 	return state
 
 func _load_state(state):
 	fixed_position_x = state.get('fixed_position_x')
 	fixed_position_y = state.get('fixed_position_y')
-#	for key in state_vars:
-#		state_vars[key] = state["m_"+key]
-	state_vars.motion.x = state.get('motion_x', 0)
-	state_vars.motion.y = state.get('motion_y', 0)
+	last_fixed_position = state.get('last_fixed_position')
 	
-	state_vars.grounded = state.get('grounded', false)
+	curr_anim = state.get('curr_anim')
+	last_curr_anim = state.get('last_curr_anim')
+	
+	motion.x = state.get('motion_x', 0)
+	motion.y = state.get('motion_y', 0)
+	
+	grounded = state.get('grounded', false)
+	dashing = state.get('dashing', false)
+	
+#	aim_angle = state.get('aim_angle')
 	
 #	sync_to_physics_engine()

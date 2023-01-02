@@ -2,6 +2,10 @@ extends Node2D
 
 const DummyNetworkAdapter = preload("res://addons/godot-rollback-netcode/DummyNetworkAdaptor.gd")
 const Tile = preload("res://Objects/Tile.tscn")
+const TileTop = preload("res://Objects/TileTop.tscn")
+const TileBottom = preload("res://Objects/TileBottom.tscn")
+const TileLeft = preload("res://Objects/TileLeft.tscn")
+const TileRight = preload("res://Objects/TileRight.tscn")
 
 onready var NetworkPanel = $HUD/NetworkPanel
 onready var HostField = $HUD/NetworkPanel/Grid/HostField
@@ -18,22 +22,51 @@ func _ready():
 	SyncManager.connect("sync_error", self, "_on_SyncManager_sync_error")
 	
 	for tile_vec in $MAP/TILES.get_used_cells():
+		var top_tile = ( # Have top collision if....
+			$MAP/TILES.get_cell(tile_vec.x, tile_vec.y-1) == -1 # There's no tile above this one
+		)
+		var right_tile = ($MAP/TILES.get_cell(tile_vec.x+1, tile_vec.y) == -1)
+		var left_tile = ($MAP/TILES.get_cell(tile_vec.x-1, tile_vec.y) == -1)
+		var bott_tile = ($MAP/TILES.get_cell(tile_vec.x, tile_vec.y+1) == -1)
 		var fixed_tile_vec = SGFixed.vector2(SGFixed.from_int(tile_vec.x * 80), SGFixed.from_int(tile_vec.y * 80))
-		var tile_node = Tile.instance()
-		tile_node.fixed_position = fixed_tile_vec
-		add_child(tile_node)
-#	SyncManager.network_adaptor = DummyNetworkAdapter.new()
-#	SyncManager.start()
+		if (top_tile):
+			var tile_node = TileTop.instance()
+			tile_node.set_collision_layer_bit(1, true)
+			tile_node.fixed_position = fixed_tile_vec
+			add_child(tile_node)
+		if (right_tile): 
+			var tile_node = TileRight.instance()
+			tile_node.set_collision_layer_bit(2, true)
+			tile_node.fixed_position = fixed_tile_vec
+			add_child(tile_node)
+		if (left_tile): 
+			var tile_node = TileLeft.instance()
+			tile_node.set_collision_layer_bit(3, true)
+			tile_node.fixed_position = fixed_tile_vec
+			add_child(tile_node)
+		if (bott_tile): 
+			var tile_node = TileBottom.instance()
+			tile_node.set_collision_layer_bit(4, true)
+			tile_node.fixed_position = fixed_tile_vec
+			add_child(tile_node)
+	
+	## Local play FOR DEBUGGING ##
+#	_local_play()
 
+func _local_play():
+	SyncManager.network_adaptor = DummyNetworkAdapter.new()
+	SyncManager.start()
+	$ServerPlayer.get_node("Camera").current = true
+	$ClientPlayer.queue_free()
 
 func _process(delta):
 	$HUD/ServerPos.text = "Server: (%s, %s)" % [$ServerPlayer.position.x, $ServerPlayer.position.y]
-	$HUD/ClientPos.text = "Client: (%s, %s)" % [$ClientPlayer.position.x, $ClientPlayer.position.y]
+	if has_node("ClientPlayer"): $HUD/ClientPos.text = "Client: (%s, %s)" % [$ClientPlayer.position.x, $ClientPlayer.position.y]
 	
-	if (get_tree().is_network_server()):
-		$HUD/ThisMot.text = "Motion: %s" % $ServerPlayer.form_string
+	if (get_tree().is_network_server() or !has_node("ClientPlayer")):
+		$HUD/AltInfo.text = "Colliding: %s" % $ServerPlayer.form_string
 	else: 
-		$HUD/ThisMot.text = "Motion: %s" % $ClientPlayer.form_string
+		$HUD/AltInfo.text = "Motion: %s" % $ClientPlayer.form_string
 
 
 func _on_HostButton_pressed():

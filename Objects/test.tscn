@@ -15,7 +15,7 @@ script = ExtResource( 2 )
 scale = Vector2( 0.24, 0.24 )
 transform = Transform2D( 0.24, 0, 0, 0.24, 0, 0 )
 
-[node name="AltInfo" type="Label" parent="HUD"]
+[node name="ThisMot" type="Label" parent="HUD"]
 margin_top = 312.5
 margin_right = 52.0
 margin_bottom = 326.5

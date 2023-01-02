@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+var MSGSERIALIZER = load(\"res://scripts/MonoMessageSerializer.gd\").new()
+
+const examp_input = {
+	\"joy_dir\": 1,
+	\"jump\": true,
+	\"ff\": false,
+	\"dash\": false,
+	\"angle\": 33.5
+}
+
+func _ready():
+	var msg = MSGSERIALIZER.serialize_input({\"$\":1, \"/root/Test/ClientPlayer\": examp_input})
+	var decoded_input = MSGSERIALIZER.unserialize_input(msg)
+	print(decoded_input)
+"
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Node" type="Node" parent="."]
+script = SubResource( 1 )
